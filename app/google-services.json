@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "665474381350",
+    "project_id": "bookwhere-2b818",
+    "storage_bucket": "bookwhere-2b818.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:665474381350:android:b34c64db0613654272d8e7",
+        "android_client_info": {
+          "package_name": "com.bookwhere.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyARClfbDgggQi_96Z7xRqAfraUvkEg0FyY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
