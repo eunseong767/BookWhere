@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- B안 디자인 공통 색상 -->
 <resources>
+    <color name="primary">#B84A28</color>        <!-- 메인: 버튼, 추천 배지 -->
+    <color name="background">#FBF6F1</color>     <!-- 앱 전체 배경 -->
+    <color name="surface">#FFFFFF</color>        <!-- 카드, 입력칸 -->
+    <color name="text_main">#2B1F19</color>      <!-- 본문 글자 -->
+    <color name="text_sub">#6B5B50</color>       <!-- 보조 글자 -->
+    <color name="border">#9A8578</color>         <!-- 입력칸 테두리 -->
+    <color name="nav_bg">#F5ECE3</color>         <!-- 하단 탭 배경 -->
+    <color name="nav_selected">#F2C9B5</color>   <!-- 선택된 탭 표시 -->
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 </resources>

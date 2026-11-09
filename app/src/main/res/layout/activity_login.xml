@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- B1 로그인 — 담당: 구진희 (지금은 빈 화면, 여기에 화면을 만들면 됨) -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="@color/background">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="B1 로그인"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="@color/text_main" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="담당: 구진희"
+        android:textColor="@color/text_sub" />
+    <Button
+        android:id="@+id/btn_login"
+        style="@style/Widget.BookWhere.Button"
+        android:layout_width="match_parent"
+        android:layout_marginTop="24dp"
+        android:text="로그인 (임시: 바로 메인으로)" />
+</LinearLayout>

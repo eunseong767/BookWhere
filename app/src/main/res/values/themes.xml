@@ -1,9 +1,60 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Base.Theme.BookWhere" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 앱 전체 테마: AndroidManifest의 android:theme 이름과 같아야 함 -->
+    <style name="Theme.BookWhere" parent="Theme.Material3.Light.NoActionBar">
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="android:colorBackground">@color/background</item>
+        <item name="colorSurface">@color/surface</item>
+        <item name="colorOnSurface">@color/text_main</item>
+        <item name="android:textColor">@color/text_main</item>
+        <item name="android:windowBackground">@color/background</item>
+        <item name="android:statusBarColor">@color/background</item>
+        <item name="android:windowLightStatusBar">true</item>
     </style>
 
-    <style name="Theme.BookWhere" parent="Base.Theme.BookWhere" />
+    <!-- 기본 버튼: 주황 배경, 높이 56dp, 완전히 둥글게 -->
+    <style name="Widget.BookWhere.Button" parent="Widget.Material3.Button">
+        <item name="android:layout_height">56dp</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="cornerRadius">28dp</item>
+        <item name="backgroundTint">@color/primary</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <!-- 테두리 버튼: 흰 배경 + 주황 테두리 (회원가입 등) -->
+    <style name="Widget.BookWhere.Button.Outlined" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="android:layout_height">56dp</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="cornerRadius">28dp</item>
+        <item name="strokeColor">@color/primary</item>
+        <item name="backgroundTint">@color/white</item>
+        <item name="android:textColor">@color/primary</item>
+    </style>
+
+    <!-- 입력칸: 높이 56dp, 모서리 12dp, 테두리 #9A8578 -->
+    <style name="Widget.BookWhere.TextInput" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+        <item name="boxCornerRadiusTopStart">12dp</item>
+        <item name="boxCornerRadiusTopEnd">12dp</item>
+        <item name="boxCornerRadiusBottomStart">12dp</item>
+        <item name="boxCornerRadiusBottomEnd">12dp</item>
+        <item name="boxStrokeColor">@color/border</item>
+        <item name="boxBackgroundColor">@color/surface</item>
+    </style>
+
+    <!-- 하단 탭 -->
+    <style name="Widget.BookWhere.BottomNav" parent="Widget.Material3.BottomNavigationView">
+        <item name="backgroundTint">@color/nav_bg</item>
+        <item name="itemIconTint">@color/text_main</item>
+        <item name="itemTextColor">@color/text_main</item>
+        <item name="itemActiveIndicatorStyle">@style/BookWhere.NavIndicator</item>
+        <item name="labelVisibilityMode">labeled</item>
+    </style>
+    <style name="BookWhere.NavIndicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
+        <item name="android:color">@color/nav_selected</item>
+        <item name="android:width">64dp</item>
+        <item name="android:height">32dp</item>
+    </style>
 </resources>
