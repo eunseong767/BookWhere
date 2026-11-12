@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- B3 책 상세: 구독 플랫폼 한 줄 (DetailActivity에서 5개를 붙임) -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:minHeight="52dp"
+    android:orientation="horizontal">
+
+    <!-- 이용 가능: 주황 동그라미 + 체크 / 불가: 테두리 동그라미 + 줄 -->
+    <ImageView
+        android:id="@+id/iv_detail_platform_icon"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:scaleType="center" />
+
+    <TextView
+        android:id="@+id/tv_detail_platform_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_weight="1"
+        android:textSize="15sp" />
+
+    <!-- "월 11,900원" 또는 "없음" -->
+    <TextView
+        android:id="@+id/tv_detail_platform_side"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:textSize="13sp"
+        android:textColor="@color/text_sub" />
+</LinearLayout>
