@@ -25,7 +25,6 @@
             android:textStyle="bold"
             android:textColor="@color/text_main" />
 
-        <!-- 검색창: 글자를 입력하면 바로 아래 목록이 걸러짐 -->
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/til_search"
             style="@style/Widget.BookWhere.TextInput"
@@ -52,7 +51,6 @@
         </com.google.android.material.textfield.TextInputLayout>
     </LinearLayout>
 
-    <!-- "전체 도서 30권" / "검색 결과 3권" -->
     <TextView
         android:id="@+id/tv_search_count"
         android:layout_width="match_parent"
@@ -103,4 +101,13 @@
             android:textColor="@color/text_sub"
             android:visibility="gone" />
     </FrameLayout>
+
+    <Button
+        android:id="@+id/btn_search_more"
+        style="@style/Widget.BookWhere.Button.Outlined"
+        android:layout_width="match_parent"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="8dp"
+        android:visibility="gone" />
 </LinearLayout>

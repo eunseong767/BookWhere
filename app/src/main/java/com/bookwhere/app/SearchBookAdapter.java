@@ -22,7 +22,17 @@ public class SearchBookAdapter extends RecyclerView.Adapter<SearchBookAdapter.Vi
 
     /** 항목을 눌렀을 때 SearchFragment로 알려줌 */
     public interface OnBookClickListener {
-        void onBookClick(Book book);
+        void onBookClick(Item item);
+    }
+
+    static final class Item {
+        final Book book;
+        final SearchKakaoClient.Result result;
+
+        Item(Book book, SearchKakaoClient.Result result) {
+            this.book = book;
+            this.result = result;
+        }
     }
 
     // 표지 색 {배경, 글자} — colors.xml에 있는 색만 사용
@@ -34,7 +44,7 @@ public class SearchBookAdapter extends RecyclerView.Adapter<SearchBookAdapter.Vi
             {R.color.border, R.color.text_main},
     };
 
-    private final List<Book> books = new ArrayList<>();
+    private final List<Item> books = new ArrayList<>();
     private final OnBookClickListener listener;
 
     public SearchBookAdapter(OnBookClickListener listener) {
@@ -43,7 +53,7 @@ public class SearchBookAdapter extends RecyclerView.Adapter<SearchBookAdapter.Vi
 
     /** 보여줄 책 목록을 통째로 바꿈 (검색할 때마다 호출) */
     @SuppressLint("NotifyDataSetChanged")
-    public void setBooks(List<Book> newBooks) {
+    public void setBooks(List<Item> newBooks) {
         books.clear();
         books.addAll(newBooks);
         notifyDataSetChanged();
@@ -59,31 +69,40 @@ public class SearchBookAdapter extends RecyclerView.Adapter<SearchBookAdapter.Vi
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Book book = books.get(position);
+        Item item = books.get(position);
+        Book book = item.book;
+        SearchKakaoClient.Result result = item.result;
+        String title = result == null ? book.getTitle() : result.title;
+        String author = result == null ? book.getAuthor() : result.author;
         Context context = holder.itemView.getContext();
 
         // 표지
-        int[] colors = coverColors(book.getId());
+        int[] colors = coverColors(book == null ? title : book.getId());
         holder.cover.setCardBackgroundColor(ContextCompat.getColor(context, colors[0]));
         holder.tvCoverTitle.setTextColor(ContextCompat.getColor(context, colors[1]));
         holder.tvCoverAuthor.setTextColor(ContextCompat.getColor(context, colors[1]));
-        holder.tvCoverTitle.setText(book.getTitle());
-        holder.tvCoverAuthor.setText(book.getAuthor());
+        holder.tvCoverTitle.setText(title);
+        holder.tvCoverAuthor.setText(author);
 
         // 표지 아래 글자
-        holder.tvTitle.setText(book.getTitle());
-        holder.tvMeta.setText(joinDot(book.getAuthor(), book.getCategory()));
+        holder.tvTitle.setText(title);
+        String metadata = result == null ? joinDot(author, book.getCategory())
+                : joinDot(result.publisher, author);
+        holder.tvMeta.setText(metadata);
 
-        int count = availableCount(book);
-        if (count > 0) {
-            holder.tvStatus.setText(count + "곳에서 이용 가능");
+        if (result != null) {
+            holder.tvStatus.setVisibility(book == null ? View.GONE : View.VISIBLE);
+            holder.tvStatus.setText("구독 정보 있음");
             holder.tvStatus.setTextColor(ContextCompat.getColor(context, R.color.primary));
         } else {
-            holder.tvStatus.setText("구독 서비스에 없어요");
-            holder.tvStatus.setTextColor(ContextCompat.getColor(context, R.color.text_sub));
+            int count = availableCount(book);
+            holder.tvStatus.setVisibility(View.VISIBLE);
+            holder.tvStatus.setText(count > 0 ? count + "곳에서 이용 가능" : "구독 서비스에 없어요");
+            holder.tvStatus.setTextColor(ContextCompat.getColor(context,
+                    count > 0 ? R.color.primary : R.color.text_sub));
         }
 
-        holder.itemView.setOnClickListener(v -> listener.onBookClick(book));
+        holder.itemView.setOnClickListener(v -> listener.onBookClick(item));
     }
 
     @Override

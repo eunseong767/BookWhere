@@ -1,5 +1,8 @@
 package com.bookwhere.app;
 
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -25,10 +28,19 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
+import org.json.JSONException;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.text.NumberFormat;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 // B3 책 상세 — 하단 탭 없음
 // books/{문서ID}를 불러와 정보와 플랫폼별 구독 여부를 보여주고,
@@ -37,10 +49,16 @@ public class DetailActivity extends AppCompatActivity {
 
     // 검색 화면에서 넘겨주는 책 문서 ID (예: "총_균_쇠")
     public static final String EXTRA_BOOK_ID = "bookId";
+    static final String EXTRA_TITLE = "detailTitle";
+    static final String EXTRA_AUTHOR = "detailAuthor";
+    static final String EXTRA_PUBLISHER = "detailPublisher";
+    static final String EXTRA_THUMBNAIL = "detailThumbnail";
+    static final String EXTRA_CONTENTS = "detailContents";
 
     private static final String TAG = "DetailActivity";
 
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private final ExecutorService mediaExecutor = Executors.newSingleThreadExecutor();
 
     private String bookId;
     private Book book;                 // 불러온 책 (불러오기 전에는 null)
@@ -51,11 +69,14 @@ public class DetailActivity extends AppCompatActivity {
     private ScrollView scroll;
     private ProgressBar progress;
     private MaterialCardView cardCover;
+    private ImageView ivCover;
+    private View coverPlaceholder;
     private TextView tvCoverTitle;
     private TextView tvCoverAuthor;
     private TextView tvTitle;
     private TextView tvMeta;
     private TextView tvPublisher;
+    private TextView tvContents;
     private TextView tvPlatformCount;
     private TextView tvNone;
     private LinearLayout layoutPlatforms;
@@ -72,11 +93,14 @@ public class DetailActivity extends AppCompatActivity {
         scroll = findViewById(R.id.scroll_detail);
         progress = findViewById(R.id.progress_detail);
         cardCover = findViewById(R.id.card_detail_cover);
+        ivCover = findViewById(R.id.iv_detail_cover);
+        coverPlaceholder = findViewById(R.id.layout_detail_cover_placeholder);
         tvCoverTitle = findViewById(R.id.tv_detail_cover_title);
         tvCoverAuthor = findViewById(R.id.tv_detail_cover_author);
         tvTitle = findViewById(R.id.tv_detail_title);
         tvMeta = findViewById(R.id.tv_detail_meta);
         tvPublisher = findViewById(R.id.tv_detail_publisher);
+        tvContents = findViewById(R.id.tv_detail_contents);
         tvPlatformCount = findViewById(R.id.tv_detail_platform_count);
         tvNone = findViewById(R.id.tv_detail_none);
         layoutPlatforms = findViewById(R.id.layout_detail_platforms);
@@ -85,8 +109,13 @@ public class DetailActivity extends AppCompatActivity {
 
         bookId = getIntent().getStringExtra(EXTRA_BOOK_ID);
         if (TextUtils.isEmpty(bookId)) {
-            Toast.makeText(this, "책 정보를 찾을 수 없어요.", Toast.LENGTH_SHORT).show();
-            finish();
+            String title = getIntent().getStringExtra(EXTRA_TITLE);
+            if (TextUtils.isEmpty(title)) {
+                Toast.makeText(this, "책 정보를 찾을 수 없어요.", Toast.LENGTH_SHORT).show();
+                finish();
+                return;
+            }
+            showExternalBook(title);
             return;
         }
 
@@ -118,6 +147,8 @@ public class DetailActivity extends AppCompatActivity {
                     }
                     showBook();
                     loadWishState();
+                    if (getIntent().hasExtra(EXTRA_TITLE)) showSearchMetadata();
+                    else loadCatalogMetadata();
                 })
                 .addOnFailureListener(e -> {
                     Log.e(TAG, "books/" + bookId + " 불러오기 실패", e);
@@ -147,23 +178,142 @@ public class DetailActivity extends AppCompatActivity {
 
     /** 불러온 책 정보를 화면에 표시 */
     private void showBook() {
-        // 표지 (검색 화면과 같은 색)
-        int[] colors = SearchBookAdapter.coverColors(book.getId());
-        int ink = ContextCompat.getColor(this, colors[1]);
-        cardCover.setCardBackgroundColor(ContextCompat.getColor(this, colors[0]));
-        tvCoverTitle.setTextColor(ink);
-        tvCoverAuthor.setTextColor(ink);
-        tvCoverTitle.setText(book.getTitle());
-        tvCoverAuthor.setText(book.getAuthor());
-
+        showPlaceholder(book.getId(), book.getTitle(), book.getAuthor());
         tvTitle.setText(orDash(book.getTitle()));
         tvMeta.setText(orDash(SearchBookAdapter.joinDot(book.getAuthor(), book.getCategory())));
         tvPublisher.setText("출판사 " + orDash(book.getPublisher()));
 
         showPlatforms();
 
+        showContent();
+    }
+
+    private void showExternalBook(String title) {
+        String author = getIntent().getStringExtra(EXTRA_AUTHOR);
+        showPlaceholder(title, title, author);
+        tvTitle.setText(title);
+        tvMeta.setText(author);
+        String publisher = getIntent().getStringExtra(EXTRA_PUBLISHER);
+        if (TextUtils.isEmpty(publisher)) {
+            tvPublisher.setVisibility(View.GONE);
+        } else {
+            tvPublisher.setText("출판사 " + publisher);
+        }
+        findViewById(R.id.layout_detail_platform_heading).setVisibility(View.GONE);
+        findViewById(R.id.card_detail_platforms).setVisibility(View.GONE);
+        tvNone.setText("구독 정보 준비 중");
+        tvNone.setVisibility(View.VISIBLE);
+        setWishButtonsEnabled(false);
+        btnWish.setAlpha(0.55f);
+        showSearchMetadata();
+        showContent();
+    }
+
+    private void showPlaceholder(String id, String title, String author) {
+        int[] colors = SearchBookAdapter.coverColors(id);
+        int ink = ContextCompat.getColor(this, colors[1]);
+        cardCover.setCardBackgroundColor(ContextCompat.getColor(this, colors[0]));
+        tvCoverTitle.setTextColor(ink);
+        tvCoverAuthor.setTextColor(ink);
+        tvCoverTitle.setText(title);
+        tvCoverAuthor.setText(author);
+    }
+
+    private void showContent() {
         progress.setVisibility(View.GONE);
         scroll.setVisibility(View.VISIBLE);
+    }
+
+    private void showSearchMetadata() {
+        showDescription(getIntent().getStringExtra(EXTRA_CONTENTS));
+        String thumbnail = getIntent().getStringExtra(EXTRA_THUMBNAIL);
+        if (!TextUtils.isEmpty(thumbnail)) {
+            mediaExecutor.execute(() -> showCoverWhenReady(downloadCover(thumbnail)));
+        }
+    }
+
+    private void loadCatalogMetadata() {
+        Context context = getApplicationContext();
+        Book catalogBook = book;
+        tvContents.setText("책 소개를 불러오는 중이에요.");
+        mediaExecutor.execute(() -> {
+            SearchKakaoClient.Result result = null;
+            try {
+                result = findMetadata(context, catalogBook);
+            } catch (IOException | JSONException e) {
+                Log.w(TAG, "카카오 도서 정보 불러오기 실패", e);
+            }
+            SearchKakaoClient.Result metadata = result;
+            runOnUiThread(() -> {
+                if (!isFinishing() && !isDestroyed()) {
+                    showDescription(metadata == null ? null : metadata.contents);
+                }
+            });
+            if (metadata != null && !metadata.thumbnail.isEmpty()
+                    && !Thread.currentThread().isInterrupted()) {
+                showCoverWhenReady(downloadCover(metadata.thumbnail));
+            }
+        });
+    }
+
+    private static SearchKakaoClient.Result findMetadata(Context context, Book book)
+            throws IOException, JSONException {
+        SearchBookMatcher matcher = new SearchBookMatcher(Collections.singletonList(book));
+        String isbn = SearchBookMatcher.isbn13(book.getIsbn());
+        if (!isbn.isEmpty()) {
+            for (SearchKakaoClient.Result result : SearchKakaoClient.search(context, isbn, "isbn", 1).results) {
+                if (isbn.equals(SearchBookMatcher.isbn13(result.isbn)) && matcher.match(result) != null) {
+                    return result;
+                }
+            }
+        }
+        if (TextUtils.isEmpty(book.getTitle()) || Thread.currentThread().isInterrupted()) return null;
+        for (SearchKakaoClient.Result result : SearchKakaoClient.search(context, book.getTitle(), "title", 1).results) {
+            if (matcher.match(result) != null) return result;
+        }
+        return null;
+    }
+
+    private void showDescription(String contents) {
+        String preview = DetailBookDescription.completeSentences(contents);
+        tvContents.setText(preview.isEmpty() ? getString(R.string.detail_no_description) : preview);
+    }
+
+    private static Bitmap downloadCover(String thumbnail) {
+        String address = thumbnail.startsWith("http://")
+                ? "https://" + thumbnail.substring("http://".length()) : thumbnail;
+        if (!address.startsWith("https://")) return null;
+        try {
+            HttpURLConnection connection = (HttpURLConnection) new URL(address).openConnection();
+            try {
+                connection.setConnectTimeout(5000);
+                connection.setReadTimeout(5000);
+                try (InputStream stream = connection.getInputStream()) {
+                    return BitmapFactory.decodeStream(stream);
+                }
+            } finally {
+                connection.disconnect();
+            }
+        } catch (IOException e) {
+            Log.w(TAG, "책 표지 불러오기 실패", e);
+            return null;
+        }
+    }
+
+    private void showCoverWhenReady(Bitmap cover) {
+        if (cover == null) return;
+        runOnUiThread(() -> {
+            if (isFinishing() || isDestroyed()) return;
+            ivCover.setImageBitmap(cover);
+            coverPlaceholder.setVisibility(View.GONE);
+            ivCover.setVisibility(View.VISIBLE);
+        });
+    }
+
+    @Override
+    protected void onDestroy() {
+        mediaExecutor.shutdownNow();
+        super.onDestroy();
     }
 
     /** 플랫폼 5개를 한 줄씩 붙임 */
@@ -224,12 +374,11 @@ public class DetailActivity extends AppCompatActivity {
 
     /** 찜하기: users/{uid}/wishlist/{bookId}에 저장 */
     private void addToWishlist() {
+        if (book == null) return;
         if (wishRef == null) {
             Toast.makeText(this, "로그인 후 찜할 수 있어요.", Toast.LENGTH_SHORT).show();
             return;
         }
-        if (book == null) return;
-
         Map<String, Object> data = new HashMap<>();
         data.put("title", book.getTitle());
         data.put("author", book.getAuthor());
@@ -254,7 +403,7 @@ public class DetailActivity extends AppCompatActivity {
 
     /** 찜 취소: users/{uid}/wishlist/{bookId} 삭제 */
     private void removeFromWishlist() {
-        if (wishRef == null) return;
+        if (book == null || wishRef == null) return;
 
         setWishButtonsEnabled(false);
         wishRef.delete()
