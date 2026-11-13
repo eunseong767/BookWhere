@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 찜 목록의 분야 제목 (예: 소설 2권) -->
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/wishlist_header_text"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingStart="16dp"
+    android:paddingTop="16dp"
+    android:paddingEnd="16dp"
+    android:paddingBottom="4dp"
+    android:textColor="@color/text_main"
+    android:textSize="16sp"
+    android:textStyle="bold" />

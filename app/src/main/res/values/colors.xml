@@ -9,6 +9,15 @@
     <color name="border">#9A8578</color>         <!-- 입력칸 테두리 -->
     <color name="nav_bg">#F5ECE3</color>         <!-- 하단 탭 배경 -->
     <color name="nav_selected">#F2C9B5</color>   <!-- 선택된 탭 표시 -->
+
+    <!-- B4·B6에서 추가 -->
+    <color name="divider">#EADFD5</color>        <!-- 구분선 -->
+    <color name="primary_dark">#6E2A14</color>   <!-- 진한 주황 글자 -->
+    <color name="primary_light">#FBE3D8</color>  <!-- 연한 주황 배경 (배지, 막대 배경) -->
+    <color name="on_primary_sub">#FFF1EA</color> <!-- 주황 배경 위 보조 글자 -->
+    <color name="soft_bg">#F0E3D3</color>        <!-- 베이지 안내 카드 -->
+    <color name="soft_text">#4E3620</color>      <!-- 베이지 카드 글자 -->
+
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 </resources>
