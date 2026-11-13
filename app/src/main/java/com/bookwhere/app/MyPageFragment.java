@@ -17,7 +17,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatDelegate;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -29,7 +28,6 @@ public class MyPageFragment extends Fragment {
 
     private static final String PREFS_NAME = "bookwhere_mypage_prefs";
     private static final String KEY_NOTIFICATION = "pref_notification";
-    private static final String KEY_DARK_MODE = "pref_dark_mode";
 
     private FirebaseAuth mAuth;
     private SharedPreferences prefs;
@@ -56,7 +54,6 @@ public class MyPageFragment extends Fragment {
         LinearLayout rowLogout = view.findViewById(R.id.row_logout);
 
         MaterialSwitch switchNotification = view.findViewById(R.id.switch_notification);
-        MaterialSwitch switchDarkMode = view.findViewById(R.id.switch_dark_mode);
 
         LinearLayout rowBugReport = view.findViewById(R.id.row_bug_report);
         LinearLayout rowTerms = view.findViewById(R.id.row_terms);
@@ -96,28 +93,16 @@ public class MyPageFragment extends Fragment {
             Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show();
         });
 
-        // 3. 다크모드 스위치
-        boolean isDarkEnabled = prefs.getBoolean(KEY_DARK_MODE, false);
-        switchDarkMode.setChecked(isDarkEnabled);
-        switchDarkMode.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            prefs.edit().putBoolean(KEY_DARK_MODE, isChecked).apply();
-            if (isChecked) {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-            } else {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-            }
-        });
-
-        // 4. 버그 제보 (의견 보내기)
+        // 3. 버그 제보 (의견 보내기)
         rowBugReport.setOnClickListener(v -> showBugReportDialog());
 
-        // 5. 이용약관
+        // 4. 이용약관
         rowTerms.setOnClickListener(v -> showTermsDialog());
 
-        // 6. 앱 버전 표시
+        // 5. 앱 버전 표시
         tvAppVersion.setText("v" + getAppVersionName());
 
-        // 7. 로그아웃
+        // 6. 로그아웃
         rowLogout.setOnClickListener(v -> logoutUser());
     }
 
