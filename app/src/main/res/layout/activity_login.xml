@@ -1,30 +1,150 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- B1 로그인 — 담당: 구진희 (지금은 빈 화면, 여기에 화면을 만들면 됨) -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="24dp"
-    android:background="@color/background">
+    android:background="@color/background"
+    android:padding="24dp">
 
-    <TextView
+    <!-- 왼쪽 정렬선(Margin 24dp)에 컴포넌트들을 정확히 정렬하기 위한 가이드라인 -->
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/gl_left"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="B1 로그인"
-        android:textSize="24sp"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.0" />
+
+    <!-- 자체 로고 -->
+    <ImageView
+        android:id="@+id/iv_login_logo"
+        android:layout_width="72dp"
+        android:layout_height="72dp"
+        android:layout_marginTop="32dp"
+        android:contentDescription="앱 로고"
+        android:src="@drawable/ic_logo_tablet_search"
+        app:layout_constraintStart_toStartOf="@id/gl_left"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- 앱 이름 '책어디' 좌측 정렬 -->
+    <TextView
+        android:id="@+id/tv_login_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="책어디"
+        android:textColor="@color/text_main"
+        android:textSize="48sp"
         android:textStyle="bold"
-        android:textColor="@color/text_main" />
+        app:layout_constraintStart_toStartOf="@id/gl_left"
+        app:layout_constraintTop_toBottomOf="@id/iv_login_logo" />
 
     <TextView
+        android:id="@+id/tv_login_subtitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="담당: 구진희"
-        android:textColor="@color/text_sub" />
-    <Button
+        android:layout_marginTop="4dp"
+        android:text="전자책 찾기는 책어디"
+        android:textColor="@color/text_sub"
+        android:textSize="14sp"
+        app:layout_constraintStart_toStartOf="@id/gl_left"
+        app:layout_constraintTop_toBottomOf="@id/tv_login_title" />
+
+    <!-- 이메일 입력 그룹 -->
+    <TextView
+        android:id="@+id/tv_email_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="36dp"
+        android:text="이메일"
+        android:textColor="@color/text_main"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="@id/gl_left"
+        app:layout_constraintTop_toBottomOf="@id/tv_login_subtitle" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/til_email"
+        style="@style/Widget.BookWhere.TextInput"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        app:hintEnabled="false"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@id/gl_left"
+        app:layout_constraintTop_toBottomOf="@id/tv_email_label">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/et_email"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="name@example.com"
+            android:inputType="textEmailAddress"
+            android:paddingVertical="14dp"
+            android:textColor="@color/text_main"
+            android:textColorHint="@color/text_sub" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- 비밀번호 입력 그룹 -->
+    <TextView
+        android:id="@+id/tv_password_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="비밀번호"
+        android:textColor="@color/text_main"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="@id/gl_left"
+        app:layout_constraintTop_toBottomOf="@id/til_email" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/til_password"
+        style="@style/Widget.BookWhere.TextInput"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        app:hintEnabled="false"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@id/gl_left"
+        app:layout_constraintTop_toBottomOf="@id/tv_password_label">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/et_password"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="비밀번호 입력"
+            android:inputType="textPassword"
+            android:paddingVertical="14dp"
+            android:textColor="@color/text_main"
+            android:textColorHint="@color/text_sub" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- 로그인 버튼 -->
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_login"
         style="@style/Widget.BookWhere.Button"
-        android:layout_width="match_parent"
-        android:layout_marginTop="24dp"
-        android:text="로그인 (임시: 바로 메인으로)" />
-</LinearLayout>
+        android:layout_width="0dp"
+        android:layout_height="54dp"
+        android:layout_marginTop="36dp"
+        android:text="로그인"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@id/gl_left"
+        app:layout_constraintTop_toBottomOf="@id/til_password" />
+
+    <!-- 회원가입 버튼 -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_signup"
+        style="@style/Widget.BookWhere.Button.Outlined"
+        android:layout_width="0dp"
+        android:layout_height="54dp"
+        android:layout_marginTop="12dp"
+        android:text="회원가입"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@id/gl_left"
+        app:layout_constraintTop_toBottomOf="@id/btn_login" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

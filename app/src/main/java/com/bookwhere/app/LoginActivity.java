@@ -2,21 +2,116 @@ package com.bookwhere.app;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-// B1 로그인 (담당: 구진희)
-// 지금은 버튼 누르면 바로 메인으로 감. Firebase 로그인은 여기에 붙이면 됨.
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
 public class LoginActivity extends AppCompatActivity {
+
+    private FirebaseAuth mAuth;
+    private TextInputEditText etEmail;
+    private TextInputEditText etPassword;
+    private MaterialButton btnLogin;
+    private MaterialButton btnSignup;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        findViewById(R.id.btn_login).setOnClickListener(v -> {
-            startActivity(new Intent(this, MainActivity.class));
-            finish(); // 뒤로가기로 로그인 화면에 다시 안 오게
-        });
+        mAuth = FirebaseAuth.getInstance();
+
+        etEmail = findViewById(R.id.et_email);
+        etPassword = findViewById(R.id.et_password);
+        btnLogin = findViewById(R.id.btn_login);
+        btnSignup = findViewById(R.id.btn_signup);
+
+        btnLogin.setOnClickListener(v -> loginUser());
+        btnSignup.setOnClickListener(v -> registerUser());
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        // 이미 로그인되어 있으면 바로 MainActivity로 이동
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser != null) {
+            moveToMain();
+        }
+    }
+
+    private void loginUser() {
+        String email = getInputText(etEmail);
+        String password = getInputText(etPassword);
+
+        if (!validateInput(email, password)) return;
+
+        setButtonsEnabled(false);
+        mAuth.signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener(this, task -> {
+                    setButtonsEnabled(true);
+                    if (task.isSuccessful()) {
+                        Toast.makeText(this, "로그인되었습니다.", Toast.LENGTH_SHORT).show();
+                        moveToMain();
+                    } else {
+                        String msg = task.getException() != null ? task.getException().getMessage() : "로그인 실패";
+                        Toast.makeText(this, "로그인 실패: " + msg, Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    private void registerUser() {
+        String email = getInputText(etEmail);
+        String password = getInputText(etPassword);
+
+        if (!validateInput(email, password)) return;
+
+        setButtonsEnabled(false);
+        mAuth.createUserWithEmailAndPassword(email, password)
+                .addOnCompleteListener(this, task -> {
+                    setButtonsEnabled(true);
+                    if (task.isSuccessful()) {
+                        Toast.makeText(this, "회원가입 및 로그인 완료!", Toast.LENGTH_SHORT).show();
+                        moveToMain();
+                    } else {
+                        String msg = task.getException() != null ? task.getException().getMessage() : "회원가입 실패";
+                        Toast.makeText(this, "회원가입 실패: " + msg, Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    private boolean validateInput(String email, String password) {
+        if (TextUtils.isEmpty(email)) {
+            etEmail.setError("이메일을 입력해주세요.");
+            etEmail.requestFocus();
+            return false;
+        }
+        if (TextUtils.isEmpty(password) || password.length() < 6) {
+            etPassword.setError("비밀번호를 6자 이상 입력해주세요.");
+            etPassword.requestFocus();
+            return false;
+        }
+        return true;
+    }
+
+    private String getInputText(TextInputEditText editText) {
+        return editText.getText() != null ? editText.getText().toString().trim() : "";
+    }
+
+    private void setButtonsEnabled(boolean enabled) {
+        btnLogin.setEnabled(enabled);
+        btnSignup.setEnabled(enabled);
+    }
+
+    private void moveToMain() {
+        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+        startActivity(intent);
+        finish();
     }
 }
