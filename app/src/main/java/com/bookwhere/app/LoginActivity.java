@@ -33,13 +33,17 @@ public class LoginActivity extends AppCompatActivity {
         btnSignup = findViewById(R.id.btn_signup);
 
         btnLogin.setOnClickListener(v -> loginUser());
-        btnSignup.setOnClickListener(v -> registerUser());
+
+        // 회원가입 버튼 클릭 시 새 화면(SignupActivity)으로 이동
+        btnSignup.setOnClickListener(v -> {
+            Intent intent = new Intent(LoginActivity.this, SignupActivity.class);
+            startActivity(intent);
+        });
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        // 이미 로그인되어 있으면 바로 MainActivity로 이동
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
             moveToMain();
@@ -52,36 +56,16 @@ public class LoginActivity extends AppCompatActivity {
 
         if (!validateInput(email, password)) return;
 
-        setButtonsEnabled(false);
+        btnLogin.setEnabled(false);
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, task -> {
-                    setButtonsEnabled(true);
+                    btnLogin.setEnabled(true);
                     if (task.isSuccessful()) {
                         Toast.makeText(this, "로그인되었습니다.", Toast.LENGTH_SHORT).show();
                         moveToMain();
                     } else {
                         String msg = task.getException() != null ? task.getException().getMessage() : "로그인 실패";
                         Toast.makeText(this, "로그인 실패: " + msg, Toast.LENGTH_SHORT).show();
-                    }
-                });
-    }
-
-    private void registerUser() {
-        String email = getInputText(etEmail);
-        String password = getInputText(etPassword);
-
-        if (!validateInput(email, password)) return;
-
-        setButtonsEnabled(false);
-        mAuth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, task -> {
-                    setButtonsEnabled(true);
-                    if (task.isSuccessful()) {
-                        Toast.makeText(this, "회원가입 및 로그인 완료!", Toast.LENGTH_SHORT).show();
-                        moveToMain();
-                    } else {
-                        String msg = task.getException() != null ? task.getException().getMessage() : "회원가입 실패";
-                        Toast.makeText(this, "회원가입 실패: " + msg, Toast.LENGTH_SHORT).show();
                     }
                 });
     }
@@ -102,11 +86,6 @@ public class LoginActivity extends AppCompatActivity {
 
     private String getInputText(TextInputEditText editText) {
         return editText.getText() != null ? editText.getText().toString().trim() : "";
-    }
-
-    private void setButtonsEnabled(boolean enabled) {
-        btnLogin.setEnabled(enabled);
-        btnSignup.setEnabled(enabled);
     }
 
     private void moveToMain() {

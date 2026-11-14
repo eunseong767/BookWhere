@@ -24,5 +24,6 @@
         <activity android:name=".MainActivity" />
         <activity android:name=".DetailActivity" />
         <activity android:name=".RecommendActivity" />
+        <activity android:name=".SignupActivity" />
     </application>
 </manifest>
