@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 다크모드 색상: values/colors.xml과 같은 이름을 어둡게 바꿈 -->
+<resources>
+    <color name="primary">#E3825E</color>        <!-- 어두운 배경에서 잘 보이게 조금 밝게 -->
+    <color name="background">#1C1714</color>
+    <color name="surface">#27201C</color>
+    <color name="text_main">#F2E9E2</color>
+    <color name="text_sub">#BCAEA4</color>
+    <color name="border">#7A6A5F</color>
+    <color name="nav_bg">#2A231F</color>
+    <color name="nav_selected">#5C3727</color>
+</resources>
