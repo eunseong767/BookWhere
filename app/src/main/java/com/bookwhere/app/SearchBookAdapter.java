@@ -6,6 +6,7 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -83,6 +84,10 @@ public class SearchBookAdapter extends RecyclerView.Adapter<SearchBookAdapter.Vi
         holder.tvCoverAuthor.setTextColor(ContextCompat.getColor(context, colors[1]));
         holder.tvCoverTitle.setText(title);
         holder.tvCoverAuthor.setText(author);
+        // 표지 사진: 카카오 검색 결과의 표지, 없으면 81권에 저장된 표지
+        String thumbnail = result != null && !TextUtils.isEmpty(result.thumbnail) ? result.thumbnail
+                : book != null ? book.getThumbnail() : null;
+        BookCoverLoader.load(holder.ivCover, thumbnail);
 
         // 표지 아래 글자
         holder.tvTitle.setText(title);
@@ -134,6 +139,7 @@ public class SearchBookAdapter extends RecyclerView.Adapter<SearchBookAdapter.Vi
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         final MaterialCardView cover;
+        final ImageView ivCover;
         final TextView tvCoverTitle;
         final TextView tvCoverAuthor;
         final TextView tvTitle;
@@ -143,6 +149,7 @@ public class SearchBookAdapter extends RecyclerView.Adapter<SearchBookAdapter.Vi
         ViewHolder(@NonNull View itemView) {
             super(itemView);
             cover = itemView.findViewById(R.id.card_search_book_cover);
+            ivCover = itemView.findViewById(R.id.iv_search_book_cover);
             tvCoverTitle = itemView.findViewById(R.id.tv_search_book_cover_title);
             tvCoverAuthor = itemView.findViewById(R.id.tv_search_book_cover_author);
             tvTitle = itemView.findViewById(R.id.tv_search_book_title);

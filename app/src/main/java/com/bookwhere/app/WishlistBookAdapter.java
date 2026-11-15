@@ -1,10 +1,13 @@
 package com.bookwhere.app;
 
+import android.graphics.Outline;
 import android.graphics.drawable.GradientDrawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewOutlineProvider;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -84,6 +87,8 @@ public class WishlistBookAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         cover.setCornerRadius(6 * h.itemView.getResources().getDisplayMetrics().density);
         h.cover.setBackground(cover);
         h.cover.setText(title);
+        // 표지 사진이 있으면 색깔 상자 위에 덮어서 보여줌
+        BookCoverLoader.load(h.coverImage, book.getThumbnail());
 
         h.title.setText(title);
         h.author.setText(book.getAuthor());
@@ -117,11 +122,22 @@ public class WishlistBookAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
     static class BookHolder extends RecyclerView.ViewHolder {
         final TextView cover, title, author, status;
+        final ImageView coverImage;
         final ImageButton heart;
 
         BookHolder(View v) {
             super(v);
             cover = v.findViewById(R.id.wishlist_cover);
+            coverImage = v.findViewById(R.id.wishlist_cover_image);
+            // 표지 사진도 색깔 상자처럼 모서리를 둥글게
+            float radius = 6 * v.getResources().getDisplayMetrics().density;
+            coverImage.setOutlineProvider(new ViewOutlineProvider() {
+                @Override
+                public void getOutline(View view, Outline outline) {
+                    outline.setRoundRect(0, 0, view.getWidth(), view.getHeight(), radius);
+                }
+            });
+            coverImage.setClipToOutline(true);
             title = v.findViewById(R.id.wishlist_title);
             author = v.findViewById(R.id.wishlist_author);
             status = v.findViewById(R.id.wishlist_status);

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- BookCoverLoader가 ImageView에 표지 주소를 기억해둘 때 쓰는 tag 키 -->
+    <item name="tag_book_cover_url" type="id" />
+</resources>

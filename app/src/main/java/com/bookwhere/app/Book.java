@@ -34,6 +34,7 @@ public class Book {
     private String publisher;   // 출판사
     private String category;    // 분야 (소설, 인문 등)
     private String isbn;        // ISBN (비어 있을 수 있음)
+    private String thumbnail;   // 표지 이미지 주소 (카카오 책 검색, 비어 있을 수 있음)
     private Map<String, Boolean> platforms = new HashMap<>();
 
     // Firestore가 객체를 만들 때 필요 (지우지 말 것)
@@ -46,6 +47,7 @@ public class Book {
     public String getPublisher() { return publisher; }
     public String getCategory() { return category; }
     public String getIsbn() { return isbn; }
+    public String getThumbnail() { return thumbnail; }
     public Map<String, Boolean> getPlatforms() { return platforms; }
 
     public void setId(String id) { this.id = id; }
@@ -54,6 +56,7 @@ public class Book {
     public void setPublisher(String publisher) { this.publisher = publisher; }
     public void setCategory(String category) { this.category = category; }
     public void setIsbn(String isbn) { this.isbn = isbn; }
+    public void setThumbnail(String thumbnail) { this.thumbnail = thumbnail; }
     public void setPlatforms(Map<String, Boolean> platforms) { this.platforms = platforms; }
 
     /** 해당 플랫폼에서 읽을 수 있으면 true */

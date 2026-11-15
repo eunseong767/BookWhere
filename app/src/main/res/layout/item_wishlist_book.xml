@@ -12,18 +12,32 @@
     android:paddingEnd="4dp"
     android:paddingBottom="8dp">
 
-    <!-- 표지 대신 색깔 상자 (배경색은 코드에서 지정) -->
-    <TextView
-        android:id="@+id/wishlist_cover"
+    <FrameLayout
         android:layout_width="56dp"
-        android:layout_height="80dp"
-        android:ellipsize="end"
-        android:importantForAccessibility="no"
-        android:maxLines="4"
-        android:padding="6dp"
-        android:textColor="@color/white"
-        android:textSize="10sp"
-        android:textStyle="bold" />
+        android:layout_height="80dp">
+
+        <!-- 표지 사진이 없을 때 보이는 색깔 상자 (배경색은 코드에서 지정) -->
+        <TextView
+            android:id="@+id/wishlist_cover"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:ellipsize="end"
+            android:importantForAccessibility="no"
+            android:maxLines="4"
+            android:padding="6dp"
+            android:textColor="@color/white"
+            android:textSize="10sp"
+            android:textStyle="bold" />
+
+        <!-- 표지 사진 (BookCoverLoader가 받으면 보임) -->
+        <ImageView
+            android:id="@+id/wishlist_cover_image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:importantForAccessibility="no"
+            android:scaleType="centerCrop"
+            android:visibility="gone" />
+    </FrameLayout>
 
     <LinearLayout
         android:layout_width="0dp"
