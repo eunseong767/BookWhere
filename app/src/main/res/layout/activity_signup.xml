@@ -40,7 +40,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="전찾책에서 나만의 전자책 구독을 시작하세요"
+            android:text="책어디에서 나만의 전자책 구독을 시작하세요"
             android:textColor="@color/text_sub"
             android:textSize="14sp"
             app:layout_constraintStart_toStartOf="parent"
