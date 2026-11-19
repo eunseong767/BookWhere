@@ -25,13 +25,13 @@
         app:layout_constraintStart_toStartOf="@id/gl_left"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- 앱 이름 '책어디' 좌측 정렬 -->
+    <!-- 앱 이름 '전자책어디' 좌측 정렬 -->
     <TextView
         android:id="@+id/tv_login_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="책어디"
+        android:text="전자책어디"
         android:textColor="@color/text_main"
         android:textSize="48sp"
         android:textStyle="bold"
@@ -43,7 +43,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
-        android:text="전자책 찾기는 책어디"
+        android:text="읽고 싶은 책, 어느 구독에 있을까?"
         android:textColor="@color/text_sub"
         android:textSize="14sp"
         app:layout_constraintStart_toStartOf="@id/gl_left"

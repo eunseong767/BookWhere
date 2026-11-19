@@ -182,7 +182,7 @@ public class MyPageFragment extends Fragment {
     private void showTermsDialog() {
         new MaterialAlertDialogBuilder(requireContext())
                 .setTitle("이용약관")
-                .setMessage("제1조 (목적)\n본 약관은 '책어디(BookWhere)'가 제공하는 전자책 구독 플랫폼 통합 검색 및 위시리스트 서비스의 이용 조건과 절차를 규정합니다.\n\n"
+                .setMessage("제1조 (목적)\n본 약관은 '전자책어디(E-book Where)'가 제공하는 전자책 구독 플랫폼 통합 검색 및 위시리스트 서비스의 이용 조건과 절차를 규정합니다.\n\n"
                         + "제2조 (서비스 내용)\n회원은 도서 검색, 플랫폼별 구독 가능 여부 조회, 관심 도서 저장 기능을 이용할 수 있습니다.\n\n"
                         + "제3조 (계정 관리)\n회원은 본인의 이메일 계정 정보를 안전하게 관리할 책임이 있습니다.")
                 .setPositiveButton("확인", null)
