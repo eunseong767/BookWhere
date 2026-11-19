@@ -348,6 +348,7 @@ public class SearchFragment extends Fragment {
             intent.putExtra(DetailActivity.EXTRA_PUBLISHER, item.result.publisher);
             intent.putExtra(DetailActivity.EXTRA_THUMBNAIL, item.result.thumbnail);
             intent.putExtra(DetailActivity.EXTRA_CONTENTS, item.result.contents);
+            intent.putExtra(DetailActivity.EXTRA_ISBN, item.result.isbn);
         }
         startActivity(intent);
     }

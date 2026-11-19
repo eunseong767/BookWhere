@@ -25,8 +25,11 @@ import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.SetOptions;
 
 import org.json.JSONException;
 
@@ -54,6 +57,7 @@ public class DetailActivity extends AppCompatActivity {
     static final String EXTRA_PUBLISHER = "detailPublisher";
     static final String EXTRA_THUMBNAIL = "detailThumbnail";
     static final String EXTRA_CONTENTS = "detailContents";
+    static final String EXTRA_ISBN = "detailIsbn";
 
     private static final String TAG = "DetailActivity";
 
@@ -82,6 +86,9 @@ public class DetailActivity extends AppCompatActivity {
     private LinearLayout layoutPlatforms;
     private Button btnWish;
     private Button btnUnwish;
+    private Button btnRequest;
+    private TextView tvRequestCount;
+    private DocumentReference requestRef; // requests/{ISBN 또는 제목_저자}, 조사하지 않은 책일 때만
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,6 +113,8 @@ public class DetailActivity extends AppCompatActivity {
         layoutPlatforms = findViewById(R.id.layout_detail_platforms);
         btnWish = findViewById(R.id.btn_detail_wish);
         btnUnwish = findViewById(R.id.btn_detail_unwish);
+        btnRequest = findViewById(R.id.btn_detail_request);
+        tvRequestCount = findViewById(R.id.tv_detail_request_count);
 
         bookId = getIntent().getStringExtra(EXTRA_BOOK_ID);
         if (TextUtils.isEmpty(bookId)) {
@@ -201,12 +210,94 @@ public class DetailActivity extends AppCompatActivity {
         }
         findViewById(R.id.layout_detail_platform_heading).setVisibility(View.GONE);
         findViewById(R.id.card_detail_platforms).setVisibility(View.GONE);
-        tvNone.setText("구독 정보 준비 중");
-        tvNone.setVisibility(View.VISIBLE);
         setWishButtonsEnabled(false);
         btnWish.setAlpha(0.55f);
+        setupResearchRequest(title, author);
         showSearchMetadata();
         showContent();
+    }
+
+    /** "구독 정보 준비 중" 카드: 조사 요청 버튼 준비, 이미 요청했으면 "요청 완료"로 */
+    private void setupResearchRequest(String title, String author) {
+        String isbn = SearchBookMatcher.isbn13(getIntent().getStringExtra(EXTRA_ISBN));
+        String requestId = isbn.isEmpty() ? requestIdFromTitle(title, author) : isbn;
+        requestRef = db.collection("requests").document(requestId);
+
+        findViewById(R.id.layout_detail_request).setVisibility(View.VISIBLE);
+        btnRequest.setOnClickListener(v -> sendResearchRequest(title, author, isbn));
+
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) return; // 누르면 로그인 안내
+        requestRef.collection("users").document(user.getUid()).get()
+                .addOnSuccessListener(mine -> {
+                    if (!mine.exists()) return;
+                    requestRef.get().addOnSuccessListener(doc -> {
+                        if (isFinishing() || isDestroyed()) return;
+                        Long count = doc.getLong("count");
+                        showRequestDone(count == null ? 1 : count);
+                    });
+                })
+                .addOnFailureListener(e -> Log.w(TAG, "조사 요청 여부 확인 실패", e));
+    }
+
+    /**
+     * 조사 요청: requests/{id}의 count를 1 올리고 requests/{id}/users/{uid}에 기록.
+     * 같은 사용자가 이미 요청했으면 count는 그대로 (트랜잭션으로 한 번에 확인·저장)
+     */
+    private void sendResearchRequest(String title, String author, String isbn) {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) {
+            Toast.makeText(this, "로그인이 필요해요", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        DocumentReference mineRef = requestRef.collection("users").document(user.getUid());
+
+        btnRequest.setEnabled(false); // 두 번 눌리지 않게
+        db.runTransaction(transaction -> {
+                    DocumentSnapshot request = transaction.get(requestRef);
+                    DocumentSnapshot mine = transaction.get(mineRef);
+                    Long saved = request.getLong("count");
+                    long count = saved == null ? 0 : saved;
+                    if (mine.exists()) return count; // 이미 요청함
+
+                    Map<String, Object> data = new HashMap<>();
+                    data.put("title", title);
+                    data.put("author", author == null ? "" : author);
+                    data.put("isbn", isbn);
+                    data.put("count", count + 1);
+                    data.put("lastRequestedAt", FieldValue.serverTimestamp());
+                    transaction.set(requestRef, data, SetOptions.merge());
+
+                    Map<String, Object> mineData = new HashMap<>();
+                    mineData.put("requestedAt", FieldValue.serverTimestamp());
+                    transaction.set(mineRef, mineData);
+                    return count + 1;
+                })
+                .addOnSuccessListener(count -> {
+                    if (isFinishing() || isDestroyed()) return;
+                    showRequestDone(count);
+                    Toast.makeText(this, "조사 요청을 보냈어요", Toast.LENGTH_SHORT).show();
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "조사 요청 실패", e);
+                    if (isFinishing() || isDestroyed()) return;
+                    btnRequest.setEnabled(true);
+                    Toast.makeText(this, "요청하지 못했어요. 다시 시도해 주세요.", Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    private void showRequestDone(long count) {
+        btnRequest.setEnabled(false);
+        btnRequest.setText("요청 완료");
+        tvRequestCount.setText(count + "명이 요청했어요");
+        tvRequestCount.setVisibility(View.VISIBLE);
+    }
+
+    /** ISBN이 없는 책: "제목_저자"에서 공백·특수문자를 _로 바꿔 문서 ID로 씀 */
+    private static String requestIdFromTitle(String title, String author) {
+        String raw = title + "_" + (author == null ? "" : author);
+        String id = raw.replaceAll("[^0-9A-Za-z가-힣]+", "_").replaceAll("^_+|_+$", "");
+        return id.isEmpty() ? "unknown" : id;
     }
 
     private void showPlaceholder(String id, String title, String author) {
